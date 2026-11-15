@@ -42,6 +42,8 @@ class OpenPort:
     ip_address: str
     port_number: int
     service_name: str
+    banner: str | None = None
+    risk_level: str = "Info"
 
 
 def get_local_network() -> ipaddress.IPv4Network:
@@ -217,12 +219,32 @@ def save_devices(
     return saved_count
 
 
-def _check_port(ip_address: str, port_number: int) -> bool:
+def _check_port(ip_address: str, port_number: int) -> OpenPort | None:
     try:
-        with socket.create_connection((ip_address, port_number), timeout=0.5):
-            return True
+        with socket.create_connection((ip_address, port_number), timeout=0.5) as connection:
+            connection.settimeout(0.25)
+            try:
+                banner = connection.recv(512).decode("utf-8", errors="replace").strip()
+            except (ConnectionError, OSError, socket.timeout):
+                banner = None
+
+            return OpenPort(
+                ip_address=ip_address,
+                port_number=port_number,
+                service_name=COMMON_PORTS[port_number],
+                banner=banner[:500] if banner else None,
+                risk_level=_risk_level(port_number),
+            )
     except (ConnectionError, OSError, socket.timeout):
-        return False
+        return None
+
+
+def _risk_level(port_number: int) -> str:
+    if port_number == 23:
+        return "High"
+    if port_number in {80, 1883, 5000, 8080, 9100}:
+        return "Medium"
+    return "Info"
 
 
 def scan_open_ports(devices: Iterable[DiscoveredDevice]) -> list[OpenPort]:
@@ -243,17 +265,11 @@ def scan_open_ports(devices: Iterable[DiscoveredDevice]) -> list[OpenPort]:
         }
 
         for check in as_completed(checks):
-            if not check.result():
+            open_port = check.result()
+            if open_port is None:
                 continue
 
-            ip_address, port_number = checks[check]
-            open_ports.append(
-                OpenPort(
-                    ip_address=ip_address,
-                    port_number=port_number,
-                    service_name=COMMON_PORTS[port_number],
-                )
-            )
+            open_ports.append(open_port)
 
     return sorted(open_ports, key=lambda port: (port.ip_address, port.port_number))
 
@@ -291,12 +307,14 @@ def save_open_ports(
             cursor.execute(
                 """
                 INSERT INTO dbo.open_ports
-                    (device_id, port_number, protocol, service_name)
-                VALUES (?, ?, 'TCP', ?)
+                    (device_id, port_number, protocol, service_name, banner, risk_level)
+                VALUES (?, ?, 'TCP', ?, ?, ?)
                 """,
                 device_id,
                 open_port.port_number,
                 open_port.service_name,
+                open_port.banner,
+                open_port.risk_level,
             )
 
         connection.commit()

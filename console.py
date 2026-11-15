@@ -18,7 +18,14 @@ def get_report_rows(online_only: bool) -> list[tuple[str, str, str, str, str, st
                 STRING_AGG(
                     CASE
                         WHEN p.port_number IS NOT NULL THEN
-                            CONCAT(CONVERT(varchar(10), p.port_number), '/', p.service_name)
+                            CONCAT(
+                                CONVERT(varchar(10), p.port_number),
+                                '/',
+                                p.service_name,
+                                ' [',
+                                p.risk_level,
+                                ']'
+                            )
                     END,
                     ', '
                 ),

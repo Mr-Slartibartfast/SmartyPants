@@ -2,3 +2,5 @@ pyodbc
 psutil
 scapy
 python-dotenv
+fastapi
+uvicorn

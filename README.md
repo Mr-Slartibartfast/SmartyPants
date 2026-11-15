@@ -68,7 +68,7 @@ If your SQL Server instance is on another computer, replace the server value wit
 The scanner normally detects the IPv4 network associated with the Windows default route. To select a specific network explicitly:
 
 ```powershell
-$env:SMARTYPANTS_NETWORK = '192.168.1.0/24'
+$env:SMARTYPANTS_NETWORK = '<your-local-subnet>/24'
 ```
 
 Only scan networks and devices that you own or are authorized to administer.
@@ -93,6 +93,15 @@ Display only devices currently marked online:
 python .\console.py report --online-only
 ```
 
+Start the local web dashboard:
+
+```powershell
+python -m uvicorn webapp:app --host 127.0.0.1 --port 8000
+```
+
+Open `http://127.0.0.1:8000` in a browser. The dashboard is intentionally bound to
+localhost and is read-only at this stage.
+
 The scanner currently checks a limited set of common TCP ports, including HTTP, HTTPS, SSH, RTSP, MQTT, and printer services.
 
 ## Project files
@@ -101,6 +110,7 @@ The scanner currently checks a limited set of common TCP ports, including HTTP, 
 SmartyPants.py   SQL Server connection and schema initialization
 discovery.py     Network discovery, enrichment, status tracking, and port scanning
 console.py       Console commands and inventory report
+webapp.py        Local FastAPI web dashboard
 requirements.txt Python dependencies
 ```
 

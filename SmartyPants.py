@@ -78,6 +78,8 @@ def initialize_database() -> None:
             port_number INT NOT NULL,
             protocol VARCHAR(10) NOT NULL DEFAULT 'TCP',
             service_name NVARCHAR(255) NULL,
+            banner NVARCHAR(500) NULL,
+            risk_level VARCHAR(20) NOT NULL DEFAULT 'Info',
             discovered_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
             CONSTRAINT FK_open_ports_devices
                 FOREIGN KEY (device_id) REFERENCES dbo.devices(device_id),
@@ -85,6 +87,12 @@ def initialize_database() -> None:
                 UNIQUE (device_id, port_number, protocol)
         );
     END;
+
+    IF COL_LENGTH(N'dbo.open_ports', N'banner') IS NULL
+        ALTER TABLE dbo.open_ports ADD banner NVARCHAR(500) NULL;
+
+    IF COL_LENGTH(N'dbo.open_ports', N'risk_level') IS NULL
+        ALTER TABLE dbo.open_ports ADD risk_level VARCHAR(20) NOT NULL DEFAULT 'Info';
 
     IF OBJECT_ID(N'dbo.sensors', N'U') IS NULL
     BEGIN

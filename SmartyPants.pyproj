@@ -24,6 +24,7 @@
     <Compile Include="console.py" />
     <Compile Include="discovery.py" />
     <Compile Include="SmartyPants.py" />
+    <Compile Include="webapp.py" />
   </ItemGroup>
   <ItemGroup>
     <Content Include=".env" />
