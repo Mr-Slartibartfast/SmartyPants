@@ -68,7 +68,7 @@ If your SQL Server instance is on another computer, replace the server value wit
 The scanner normally detects the IPv4 network associated with the Windows default route. To select a specific network explicitly:
 
 ```powershell
-$env:SMARTYPANTS_NETWORK = '192.168.2.0/24'
+$env:SMARTYPANTS_NETWORK = '192.168.1.0/24'
 ```
 
 Only scan networks and devices that you own or are authorized to administer.
