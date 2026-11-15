@@ -360,4 +360,37 @@ MigrationBackup/
 .ionide/
 
 # Fody - auto-generated XML schema
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment files and secrets
+.env
+.env.*
+!.env.example
+
+# Local databases, exports, and logs
+*.db
+*.sqlite
+*.sqlite3
+*.bak
+*.dump
+*.log
+reports/
+exports/
+
+# Python tooling and packaging output
+.pytest_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.spec
 FodyWeavers.xsd

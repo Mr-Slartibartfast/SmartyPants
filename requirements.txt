@@ -1,0 +1,4 @@
+pyodbc
+psutil
+scapy
+python-dotenv
